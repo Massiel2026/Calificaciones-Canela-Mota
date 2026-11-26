@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Centro Educativo en Artes Canela Mota | Portal de Calificaciones</title>
+  <!-- Librería SheetJS para importar y exportar archivos Excel (.xlsx, .xls, .csv) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --blue-950: #07193d;
+      --blue-900: #0c2b6b;
+      --blue-800: #133e96;
+      --blue-700: #1d4ed8;
+      --blue-600: #2563eb;
+      --blue-500: #3b82f6;
+      --blue-200: #bfdbfe;
+      --blue-100: #dbeafe;
+      --blue-50: #eff6ff;
+      --slate-900: #0f172a;
+      --slate-600: #475569;
+      --slate-200: #e2e8f0;
+      --white: #ffffff;
+      --danger: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(165deg, var(--blue-950) 0%, var(--blue-800) 32%, var(--blue-50) 32%);
+      min-height: 100vh;
+      color: var(--slate-900);
+      padding: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 940px;
+      background: var(--white);
+      border-radius: 22px;
+      box-shadow: 0 22px 50px rgba(7, 25, 61, 0.25);
+      overflow: hidden;
+      margin-top: 8px;
+      border: 1px solid var(--blue-100);
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, var(--blue-950) 0%, var(--blue-800) 100%);
+      color: var(--white);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-wrap {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: var(--white);
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .logo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    .brand h1 {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      line-height: 1.25;
+    }
+
+    .brand p {
+      font-size: 12px;
+      color: var(--blue-100);
+      margin-top: 2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .role-pill {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 8px 13px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .content {
+      padding: 24px;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    h2 {
+      font-size: 21px;
+      color: var(--blue-900);
+      margin-bottom: 6px;
+    }
+
+    h3 {
+      font-size: 15px;
+      color: var(--blue-900);
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--slate-600);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .field {
+      margin-bottom: 13px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: var(--blue-950);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      background: var(--white);
+      color: var(--slate-900);
+    }
+
+    input:focus, select:focus {
+      border-color: var(--blue-600);
+      box-shadow: 0 0 0 3px var(--blue-100);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue-900) 100%);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.95;
+    }
+
+    .btn-secondary {
+      padding: 10px 14px;
+      border: 1.5px solid var(--blue-600);
+      border-radius: 10px;
+      background: var(--blue-50);
+      color: var(--blue-900);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: var(--blue-100);
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 13px;
+      border: 1.5px solid var(--blue-600);
+      border-radius: 12px;
+      background: var(--blue-50);
+      color: var(--blue-900);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-google:hover {
+      background: var(--blue-100);
+    }
+
+    .divider {
+      text-align: center;
+      font-size: 12px;
+      color: var(--slate-600);
+      margin: 22px 0;
+      position: relative;
+    }
+
+    .divider::before, .divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 32%;
+      height: 1px;
+      background: var(--slate-200);
+    }
+
+    .divider::before { left: 0; }
+    .divider::after { right: 0; }
+
+    .alert {{
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 14px;
+      display: none;
+    }}
+
+    .alert-error {
+      background: #fef2f2;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .alert-ok {
+      background: var(--blue-50);
+      color: var(--blue-900);
+      border: 1px solid var(--blue-500);
+    }
+
+    .tabs-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      border-bottom: 2px solid var(--blue-50);
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--blue-100);
+      background: var(--blue-50);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--blue-900);
+    }
+
+    .tab-btn.active {
+      background: var(--blue-800);
+      color: var(--white);
+      border-color: var(--blue-800);
+    }
+
+    .card-box {
+      border: 1px solid var(--blue-100);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: var(--white);
+    }
+
+    .excel-dropzone {
+      border: 2px dashed var(--blue-500);
+      background: var(--blue-50);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--blue-100);
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: var(--blue-900);
+      color: var(--white);
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--blue-50);
+    }
+
+    tr:nth-child(even) td {
+      background: #f8fbff;
+    }
+
+    .id-badge {
+      background: var(--blue-100);
+      color: var(--blue-950);
+      padding: 4px 8px;
+      border-radius: 7px;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    .camera-box {
+      border: 2px dashed var(--blue-500);
+      border-radius: 14px;
+      background: var(--blue-50);
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    video, canvas, .preview-img {
+      width: 100%;
+      max-height: 240px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .student-banner {
+      background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 100%);
+      color: var(--white);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .period-btn {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--blue-200);
+      background: var(--blue-50);
+      color: var(--blue-900);
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .period-btn.active {
+      background: var(--blue-800);
+      color: var(--white);
+      border-color: var(--blue-800);
+    }
+
+    .subject-card {
+      border: 1px solid var(--blue-100);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      background: var(--white);
+    }
+
+    .subject-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--blue-950);
+      margin-bottom: 8px;
+    }
+
+    .avg-pill {
+      background: var(--blue-100);
+      color: var(--blue-900);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .comp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 6px;
+      font-size: 12px;
+      color: var(--slate-600);
+    }
+
+    .comp-grid strong {
+      color: var(--blue-950);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- CABECERA INSTITUCIONAL -->
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo-wrap">
+          <img src="logo.png" alt="Logo Centro Educativo en Artes Canela Mota"
+               onerror="this.style.display='none'; document.getElementById('logoFallbackSvg').style.display='block';" />
+          <svg id="logoFallbackSvg" style="display:none; width:100%; height:100%;" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="46" fill="#eff6ff" stroke="#1d4ed8" stroke-width="6"/>
+            <text x="50" y="47" text-anchor="middle" font-size="14" font-weight="800" fill="#0c2b6b">CANELA</text>
+            <text x="50" y="64" text-anchor="middle" font-size="14" font-weight="800" fill="#1d4ed8">MOTA</text>
+          </svg>
+        </div>
+        <div>
+          <h1>Centro Educativo en Artes Canela Mota</h1>
+          <p id="headerSubtitle">Sistema de Gestión y Consulta de Calificaciones</p>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <span class="role-pill" id="roleBadge" style="display:none;"></span>
+        <button class="btn-ghost" onclick="goHome()">Inicio</button>
+        <button class="btn-ghost" id="btnLogout" style="display:none;" onclick="logoutUser()">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- PANTALLA 1: ACCESO PADRES Y PERSONAL DOCENTE / ADMINISTRACIÓN -->
+      <section class="screen active" id="screen-home">
+        <div style="max-width: 520px; margin: 0 auto;">
+          <h2>Consulta de Calificaciones para Padres</h2>
+          <p class="subtitle">Ingrese el <strong>ID del Estudiante</strong> entregado por el Centro Educativo en Artes Canela Mota para visualizar los periodos P1 a P4.</p>
+
+          <div class="alert alert-error" id="parentLoginError"></div>
+
+          <div class="field">
+            <label for="parentStudentId">ID del Estudiante</label>
+            <input type="text" id="parentStudentId" placeholder="Ej. CM-1A-001" style="text-transform: uppercase; font-weight: 700;" />
+          </div>
+
+          <button class="btn-primary" onclick="parentLogin()">Acceder con ID del Estudiante</button>
+
+          <div class="divider">Acceso Docente y Administración General</div>
+
+          <button class="btn-google" onclick="loginWithGoogle()">
+            <span>🔐 Iniciar sesión con cuenta institucional (@docente.edu.do)</span>
+          </button>
+          <p style="font-size: 11px; color: var(--slate-600); text-align: center; margin-top: 8px;">
+            Acceso habilitado para la <strong>Administradora General</strong> y docentes con correo <strong>@docente.edu.do</strong>.
+          </p>
+        </div>
+      </section>
+
+      <!-- PANTALLA 2: PANEL DOCENTE Y ADMINISTRADORA GENERAL -->
+      <section class="screen" id="screen-staff">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h2 id="panelTitle">Panel Docente</h2>
+            <p class="subtitle" style="margin-bottom:0;" id="staffEmailLabel"></p>
+          </div>
+        </div>
+
+        <div class="tabs-bar">
+          <button class="tab-btn active" onclick="switchTab('excel', this)">1. Subir Excel de Notas</button>
+          <button class="tab-btn" onclick="switchTab('view-grades', this)">2. Ver Notas (P1 - P4)</button>
+          <button class="tab-btn" onclick="switchTab('students-ids', this)">3. Estudiantes e IDs por Curso</button>
+          <button class="tab-btn" id="tabAdminBtn" style="display:none;" onclick="switchTab('admin-panel', this)">4. Administración General</button>
+        </div>
+
+        <div class="alert alert-ok" id="staffMsgOk"></div>
+        <div class="alert alert-error" id="staffMsgErr"></div>
+
+        <!-- TAB 1: SUBIR CALIFICACIONES DESDE EXCEL -->
+        <div id="tab-excel">
+          <div class="card-box">
+            <h3>Cargar archivo de Excel (.xlsx, .xls, .csv)</h3>
+            <p class="subtitle">Seleccione el curso y el periodo correspondiente (P1 a P4), descargue la plantilla si la necesita y suba el archivo con las calificaciones.</p>
+
+            <div class="grid-3">
+              <div class="field">
+                <label>Curso / Sección</label>
+                <select id="excelCourseSelect"></select>
+              </div>
+              <div class="field">
+                <label>Periodo</label>
+                <select id="excelPeriodSelect">
+                  <option value="P1">P1 - Primer Periodo</option>
+                  <option value="P2">P2 - Segundo Periodo</option>
+                  <option value="P3">P3 - Tercer Periodo</option>
+                  <option value="P4">P4 - Cuarto Periodo</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Asignatura (si el Excel no trae columna Asignatura)</label>
+                <input type="text" id="excelDefaultSubject" placeholder="Ej. Matemática, Artes Visuales, Música" />
+              </div>
+            </div>
+
+            <div style="margin-bottom: 14px; display:flex; gap:10px; flex-wrap:wrap;">
+              <button type="button" class="btn-secondary" onclick="downloadExcelTemplate()">⬇ Descargar Plantilla Excel del Curso</button>
+            </div>
+
+            <div class="excel-dropzone">
+              <p style="font-size: 14px; font-weight: 700; color: var(--blue-900); margin-bottom: 6px;">Seleccione su archivo de Excel</p>
+              <p style="font-size: 12px; color: var(--slate-600); margin-bottom: 12px;">
+                Columnas soportadas: <code>ID</code>, <code>Estudiante</code>, <code>Asignatura</code>, <code>Comunicativa</code>, <code>Pensamiento_Logico</code>, <code>Cientifica</code>, <code>Etica</code> (o <code>Nota</code>).
+              </p>
+              <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" onchange="handleExcelUpload(event)" style="max-width: 360px; margin: 0 auto;" />
+            </div>
+
+            <div id="excelPreviewContainer" style="display:none;">
+              <h3>Vista previa de calificaciones detectadas</h3>
+              <div class="table-wrap">
+                <table id="excelPreviewTable"></table>
+              </div>
+              <button class="btn-primary" style="margin-top: 14px;" onclick="publishExcelGrades()">Confirmar y Publicar Calificaciones</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: VISUALIZAR CALIFICACIONES POR CURSO Y PERIODO (P1-P4) -->
+        <div id="tab-view-grades" style="display:none;">
+          <div class="card-box">
+            <h3>Consulta de Calificaciones Cargadas</h3>
+            <div class="grid-2" style="margin-bottom: 12px;">
+              <div class="field">
+                <label>Filtrar por Curso</label>
+                <select id="viewCourseFilter" onchange="renderStaffGradesTable()"></select>
+              </div>
+              <div class="field">
+                <label>Seleccionar Periodo</label>
+                <div class="grid-4">
+                  <button type="button" class="period-btn active" onclick="setStaffPeriod('P1', this)">P1</button>
+                  <button type="button" class="period-btn" onclick="setStaffPeriod('P2', this)">P2</button>
+                  <button type="button" class="period-btn" onclick="setStaffPeriod('P3', this)">P3</button>
+                  <button type="button" class="period-btn" onclick="setStaffPeriod('P4', this)">P4</button>
+                </div>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table id="staffGradesTable"></table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: GESTIÓN DE ESTUDIANTES E IDs POR CURSO -->
+        <div id="tab-students-ids" style="display:none;">
+          <div class="card-box">
+            <h3>Registrar Estudiante o Generar / Cambiar ID por Curso</h3>
+            <div class="grid-3">
+              <div class="field">
+                <label>Curso</label>
+                <select id="studentCourseSelect" onchange="suggestStudentId()"></select>
+              </div>
+              <div class="field">
+                <label>Nombre Completo del Estudiante</label>
+                <input type="text" id="studentFullName" placeholder="Ej. MARTÍNEZ, CARLOS DANIEL" />
+              </div>
+              <div class="field">
+                <label>ID del Estudiante (Generado o Personalizado)</label>
+                <div style="display:flex; gap:6px;">
+                  <input type="text" id="studentCustomId" style="font-family: monospace; font-weight: 700;" />
+                  <button type="button" class="btn-secondary" onclick="suggestStudentId()" title="Generar nuevo ID">↻</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="saveOrUpdateStudent()">Guardar Estudiante y Asignar ID</button>
+          </div>
+
+          <div class="card-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+              <h3 style="margin-bottom:0;">Listado de Estudiantes e IDs</h3>
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <select id="filterStudentsCourse" onchange="renderStudentsList()" style="width:auto; padding:8px 12px;"></select>
+                <button type="button" class="btn-secondary" onclick="regenerateCourseIds()">Regenerar IDs del Curso</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table id="studentsListTable"></table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: ADMINISTRACIÓN GENERAL (SOLO CUENTA ADMINISTRADORA DEL ESPACIO) -->
+        <div id="tab-admin-panel" style="display:none;">
+          <div class="card-box">
+            <h3>Control de Administración General</h3>
+            <p class="subtitle">Como cuenta administradora del espacio, puede supervisar todos los cursos, registrar docentes y revisar las constancias de entrega de los padres.</p>
+            
+            <div class="grid-2">
+              <div class="field">
+                <label>Registrar correo docente (@docente.edu.do)</label>
+                <div style="display:flex; gap:8px;">
+                  <input type="email" id="newTeacherEmail" placeholder="nombre.apellido@docente.edu.do" />
+                  <button type="button" class="btn-secondary" onclick="authorizeTeacher()">Registrar</button>
+                </div>
+              </div>
+              <div class="field">
+                <label>Cuenta Administradora General</label>
+                <input type="text" id="adminEmailDisplay" disabled style="background: var(--blue-50); font-weight: 700;" />
+              </div>
+            </div>
+          </div>
+
+          <div class="card-box">
+            <h3>Constancias de Entrega Confirmadas por Padres</h3>
+            <div class="table-wrap">
+              <table id="deliveriesTable"></table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANTALLA 3: CONFIRMACIÓN DE ENTREGA CON FOTO (PADRES) -->
+      <section class="screen" id="screen-parent-confirm">
+        <div style="max-width: 520px; margin: 0 auto;">
+          <h2>Confirmar Entrega de Boletín</h2>
+          <p class="subtitle">Estudiante: <strong id="confirmStudentLabel"></strong>. Complete los datos del padre, madre o tutor que recibe y capture una foto como constancia.</p>
+
+          <div class="alert alert-error" id="confirmError"></div>
+
+          <div class="field">
+            <label>Nombre completo del adulto que recibe</label>
+            <input type="text" id="guardianName" placeholder="Ej. Ana María Rodríguez" />
+          </div>
+
+          <div class="field">
+            <label>Parentesco con el estudiante</label>
+            <select id="guardianRelation">
+              <option value="">Seleccione una opción</option>
+              <option value="Madre">Madre</option>
+              <option value="Padre">Padre</option>
+              <option value="Tutor/a legal">Tutor/a legal</option>
+              <option value="Abuelo/a">Abuelo/a</option>
+            </select>
+          </div>
+
+          <div class="camera-box">
+            <video id="videoFeed" autoplay playsinline style="display:none;"></video>
+            <canvas id="photoCanvas" style="display:none;"></canvas>
+            <img id="capturedPhoto" class="preview-img" style="display:none;" alt="Constancia" />
+            <span id="cameraPlaceholder" style="font-size:13px; color:var(--blue-900); text-align:center;">
+              Active la cámara o seleccione una foto de constancia
+            </span>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+            <button type="button" class="btn-secondary" style="flex:1;" onclick="startCamera()">📷 Activar cámara</button>
+            <button type="button" class="btn-secondary" id="btnCapture" onclick="capturePhoto()" style="display:none; flex:1;">Capturar foto</button>
+            <input type="file" id="fileFallback" accept="image/*" style="display:none;" onchange="handleFilePhoto(event)" />
+            <button type="button" class="btn-secondary" style="flex:1;" onclick="document.getElementById('fileFallback').click()">📁 Subir foto</button>
+          </div>
+
+          <button class="btn-primary" onclick="submitDeliveryAndShowGrades()">Confirmar y Ver Calificaciones (P1 - P4)</button>
+        </div>
+      </section>
+
+      <!-- PANTALLA 4: BOLETÍN DE CALIFICACIONES (PADRES) -->
+      <section class="screen" id="screen-parent-grades">
+        <div class="student-banner">
+          <div style="font-size:11px; letter-spacing:0.6px; opacity:0.9;">CENTRO EDUCATIVO EN ARTES CANELA MOTA · BOLETÍN OFICIAL</div>
+          <div style="font-size:20px; font-weight:800; margin-top:4px;" id="viewStudentName"></div>
+          <div style="font-size:13px; opacity:0.95; margin-top:4px;" id="viewStudentMeta"></div>
+        </div>
+
+        <div class="grid-4" style="margin-bottom:16px;">
+          <button class="period-btn active" onclick="selectParentPeriod('P1', this)">P1</button>
+          <button class="period-btn" onclick="selectParentPeriod('P2', this)">P2</button>
+          <button class="period-btn" onclick="selectParentPeriod('P3', this)">P3</button>
+          <button class="period-btn" onclick="selectParentPeriod('P4', this)">P4</button>
+        </div>
+
+        <div id="parentSubjectsList"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // =========================================================================
+    // 1. CONFIGURACIÓN DE FIREBASE Y CUENTA ADMINISTRADORA GENERAL DEL ESPACIO
+    // =========================================================================
+    const FIREBASE_CONFIG = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_PROYECTO.firebaseapp.com",
+      projectId: "TU_PROYECTO",
+      storageBucket: "TU_PROYECTO.appspot.com",
+      messagingSenderId: "000000000000",
+      appId: "1:000000000000:web:xxxxxxxxxxxx"
+    };
+
+    // Coloca aquí el correo de la Administradora General del espacio
+    const GENERAL_ADMIN_EMAIL = "massiel2026@gmail.com";
+
+    // Listado oficial de cursos del Centro Educativo en Artes Canela Mota
+    const CURSOS = [
+      { label: "1ro. A", code: "1A" },
+      { label: "1ro. B", code: "1B" },
+      { label: "2do. A", code: "2A" },
+      { label: "2do. B", code: "2B" },
+      { label: "3ro. A", code: "3A" },
+      { label: "3ro. B", code: "3B" },
+      { label: "3ro. C", code: "3C" },
+      { label: "4to. Visuales", code: "4V" },
+      { label: "4to. Música", code: "4M" },
+      { label: "5to. Música", code: "5M" },
+      { label: "5to. Visuales", code: "5V" },
+      { label: "6to. Visuales", code: "6V" },
+      { label: "6to. Música", code: "6M" }
+    ];
+
+    const app = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    let currentUserRole = null;
+    let allStudents = [];
+    let parsedExcelRows = [];
+    let staffViewPeriod = "P1";
+    let activeStudent = null;
+    let activeParentPeriod = "P1";
+    let photoDataUrl = null;
+    let mediaStream = null;
+
+    function initCourseSelects() {
+      const ids = ["excelCourseSelect", "viewCourseFilter", "studentCourseSelect", "filterStudentsCourse"];
+      ids.forEach(selId => {
+        const sel = document.getElementById(selId);
+        if (!sel) return;
+        sel.innerHTML = "";
+        if (selId === "viewCourseFilter" || selId === "filterStudentsCourse") {
+          const allOpt = document.createElement("option");
+          allOpt.value = "ALL";
+          allOpt.textContent = "Todos los cursos";
+          sel.appendChild(allOpt);
+        }
+        CURSOS.forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.label;
+          opt.textContent = c.label;
+          sel.appendChild(opt);
+        });
+      });
+      suggestStudentId();
+    }
+    initCourseSelects();
+
+    function showScreen(id) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function isAuthorizedStaff(email) {
+      if (!email) return false;
+      const lower = email.toLowerCase().trim();
+      if (lower === GENERAL_ADMIN_EMAIL.toLowerCase().trim()) return "admin";
+      if (lower.endsWith("@docente.edu.do")) return "teacher";
+      return false;
+    }
+
+    // --- INICIO DE SESIÓN GOOGLE (ADMINISTRADORA GENERAL Y DOCENTES) ---
+    window.loginWithGoogle = async function() {
+      const errBox = document.getElementById("parentLoginError");
+      errBox.style.display = "none";
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const email = result.user.email;
+        const role = isAuthorizedStaff(email);
+        if (!role) {
+          await signOut(auth);
+          errBox.textContent = `Acceso denegado (${email}). Solo puede ingresar la Administradora General o docentes con correo @docente.edu.do.`;
+          errBox.style.display = "block";
+        }
+      } catch (e) {
+        errBox.textContent = "Error al iniciar sesión: " + e.message;
+        errBox.style.display = "block";
+      }
+    };
+
+    window.logoutUser = async function() {
+      await signOut(auth);
+      goHome();
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const role = isAuthorizedStaff(user.email);
+        if (role) {
+          currentUserRole = role;
+          document.getElementById("btnLogout").style.display = "inline-block";
+          const roleBadge = document.getElementById("roleBadge");
+          roleBadge.style.display = "inline-block";
+
+          if (role === "admin") {
+            roleBadge.textContent = "ADMINISTRADORA GENERAL";
+            document.getElementById("panelTitle").textContent = "Panel de Administración General";
+            document.getElementById("tabAdminBtn").style.display = "inline-block";
+            document.getElementById("adminEmailDisplay").value = user.email;
+          } else {
+            roleBadge.textContent = "DOCENTE";
+            document.getElementById("panelTitle").textContent = "Panel Docente";
+            document.getElementById("tabAdminBtn").style.display = "none";
+          }
+
+          document.getElementById("staffEmailLabel").textContent = `${user.displayName || "Usuario"} (${user.email})`;
+          showScreen("screen-staff");
+          await loadAllStudents();
+          return;
+        }
+      }
+      currentUserRole = null;
+      document.getElementById("btnLogout").style.display = "none";
+      document.getElementById("roleBadge").style.display = "none";
+    });
+
+    function notifyStaff(msg, isError = false) {
+      const ok = document.getElementById("staffMsgOk");
+      const err = document.getElementById("staffMsgErr");
+      ok.style.display = "none";
+      err.style.display = "none";
+      if (isError) {
+        err.textContent = msg;
+        err.style.display = "block";
+      } else {
+        ok.textContent = msg;
+        ok.style.display = "block";
+      }
+    }
+
+    window.switchTab = async function(tabName, btn) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      ["excel", "view-grades", "students-ids", "admin-panel"].forEach(t => {
+        document.getElementById("tab-" + t).style.display = t === tabName ? "block" : "none";
+      });
+      if (tabName === "view-grades") renderStaffGradesTable();
+      if (tabName === "students-ids") renderStudentsList();
+      if (tabName === "admin-panel") await loadDeliveriesAdmin();
+    };
+
+    // --- CARGA DE ESTUDIANTES Y GENERACIÓN / CAMBIO DE IDs POR CURSO ---
+    async function loadAllStudents() {
+      const snap = await getDocs(collection(db, "estudiantes"));
+      allStudents = [];
+      snap.forEach(d => allStudents.push({ id: d.id, ...d.data() }));
+      allStudents.sort((a, b) => (a.course || "").localeCompare(b.course || "") || (a.name || "").localeCompare(b.name || ""));
+      suggestStudentId();
+      renderStudentsList();
+      renderStaffGradesTable();
+    }
+
+    window.suggestStudentId = function() {
+      const courseLabel = document.getElementById("studentCourseSelect").value;
+      const courseObj = CURSOS.find(c => c.label === courseLabel) || CURSOS[0];
+      const countInCourse = allStudents.filter(s => s.course === courseLabel).length + 1;
+      const numStr = String(countInCourse).padStart(3, "0");
+      document.getElementById("studentCustomId").value = `CM-${courseObj.code}-${numStr}`;
+    };
+
+    window.saveOrUpdateStudent = async function() {
+      const course = document.getElementById("studentCourseSelect").value;
+      const name = document.getElementById("studentFullName").value.trim().toUpperCase();
+      const newId = document.getElementById("studentCustomId").value.trim().toUpperCase();
+
+      if (!name || !newId) {
+        notifyStaff("Complete el nombre del estudiante y el ID.", true);
+        return;
+      }
+
+      try {
+        await setDoc(doc(db, "estudiantes", newId), {
+          name,
+          course,
+          periods: { P1: {}, P2: {}, P3: {}, P4: {} },
+          updatedBy: auth.currentUser.email,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        document.getElementById("studentFullName").value = "";
+        notifyStaff(`Estudiante ${name} guardado en ${course} con el ID: ${newId}`);
+        await loadAllStudents();
+      } catch (e) {
+        notifyStaff("Error al guardar estudiante: " + e.message, true);
+      }
+    };
+
+    window.changeStudentId = async function(oldId) {
+      const student = allStudents.find(s => s.id === oldId);
+      if (!student) return;
+      const proposed = prompt(`Cambiar ID para ${student.name} (${student.course}):`, oldId);
+      if (!proposed) return;
+      const cleanNewId = proposed.trim().toUpperCase();
+      if (cleanNewId === oldId) return;
+
+      if (allStudents.some(s => s.id === cleanNewId)) {
+        notifyStaff(`El ID ${cleanNewId} ya está en uso por otro estudiante.`, true);
+        return;
+      }
+
+      try {
+        const { id, ...rest } = student;
+        await setDoc(doc(db, "estudiantes", cleanNewId), {
+          ...rest,
+          updatedBy: auth.currentUser.email,
+          updatedAt: serverTimestamp()
+        });
+        await deleteDoc(doc(db, "estudiantes", oldId));
+        notifyStaff(`ID actualizado de ${oldId} a ${cleanNewId}.`);
+        await loadAllStudents();
+      } catch (e) {
+        notifyStaff("Error al cambiar ID: " + e.message, true);
+      }
+    };
+
+    window.regenerateCourseIds = async function() {
+      const selectedCourse = document.getElementById("filterStudentsCourse").value;
+      if (selectedCourse === "ALL") {
+        notifyStaff("Seleccione un curso específico en el filtro para regenerar sus IDs.", true);
+        return;
+      }
+      const courseObj = CURSOS.find(c => c.label === selectedCourse);
+      const list = allStudents.filter(s => s.course === selectedCourse);
+      if (list.length === 0) {
+        notifyStaff("No hay estudiantes registrados en ese curso.", true);
+        return;
+      }
+
+      const suffix = Math.floor(10 + Math.random() * 89);
+      try {
+        let idx = 1;
+        for (const st of list) {
+          const newId = `CM-${courseObj.code}-${suffix}${String(idx).padStart(2, "0")}`;
+          const { id, ...rest } = st;
+          await setDoc(doc(db, "estudiantes", newId), rest);
+          if (st.id !== newId) await deleteDoc(doc(db, "estudiantes", st.id));
+          idx++;
+        }
+        notifyStaff(`Se regeneraron ${list.length} IDs para el curso ${selectedCourse}.`);
+        await loadAllStudents();
+      } catch (e) {
+        notifyStaff("Error al regenerar IDs: " + e.message, true);
+      }
+    };
+
+    window.renderStudentsList = function() {
+      const filter = document.getElementById("filterStudentsCourse").value;
+      const table = document.getElementById("studentsListTable");
+      const filtered = filter === "ALL" ? allStudents : allStudents.filter(s => s.course === filter);
+
+      if (filtered.length === 0) {
+        table.innerHTML = "<tr><td style='padding:14px; color:#64748b;'>No hay estudiantes registrados en este filtro.</td></tr>";
+        return;
+      }
+
+      let html = `
+        <thead>
+          <tr>
+            <th>Curso</th>
+            <th>Estudiante</th>
+            <th>ID de Acceso Padres</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
+      filtered.forEach(s => {
+        html += `
+          <tr>
+            <td><strong>${s.course}</strong></td>
+            <td>${s.name}</td>
+            <td><span class="id-badge">${s.id}</span></td>
+            <td><button type="button" class="btn-secondary" style="padding:5px 10px; font-size:12px;" onclick="changeStudentId('${s.id}')">Cambiar ID</button></td>
+          </tr>
+        `;
+      });
+      html += "</tbody>";
+      table.innerHTML = html;
+    };
+
+    // --- IMPORTACIÓN Y EXPORTACIÓN DE EXCEL (SHEETJS) ---
+    window.downloadExcelTemplate = function() {
+      const course = document.getElementById("excelCourseSelect").value;
+      const subject = document.getElementById("excelDefaultSubject").value.trim() || "Artes Visuales / Asignatura";
+      const studentsInCourse = allStudents.filter(s => s.course === course);
+
+      const rows = studentsInCourse.length > 0
+        ? studentsInCourse.map(s => ({
+            ID: s.id,
+            Estudiante: s.name,
+            Curso: s.course,
+            Asignatura: subject,
+            Comunicativa: 90,
+            Pensamiento_Logico: 88,
+            Cientifica: 89,
+            Etica: 92
+          }))
+        : [
+            {
+              ID: `CM-${(CURSOS.find(c => c.label === course) || CURSOS[0]).code}-001`,
+              Estudiante: "EJEMPLO, ESTUDIANTE UNO",
+              Curso: course,
+              Asignatura: subject,
+              Comunicativa: 90,
+              Pensamiento_Logico: 88,
+              Cientifica: 89,
+              Etica: 92
+            }
+          ];
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Calificaciones");
+      XLSX.writeFile(wb, `Plantilla_${course.replace(/[^a-zA-Z0-9]/g, "_")}.xlsx`);
+    };
+
+    window.handleExcelUpload = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+        const selectedCourse = document.getElementById("excelCourseSelect").value;
+        const defaultSubject = document.getElementById("excelDefaultSubject").value.trim() || "Asignatura General";
+        const courseObj = CURSOS.find(c => c.label === selectedCourse) || CURSOS[0];
+
+        parsedExcelRows = json.map((row, idx) => {
+          const rawId = String(row.ID || row.Id || row.id || "").trim().toUpperCase();
+          const name = String(row.Estudiante || row.Nombre || row.estudiante || "").trim().toUpperCase();
+          const subject = String(row.Asignatura || row.Materia || defaultSubject).trim();
+          const c1 = Number(row.Comunicativa ?? row.Nota ?? 0);
+          const c2 = Number(row.Pensamiento_Logico ?? row["Pensamiento Logico"] ?? row.Nota ?? 0);
+          const c3 = Number(row.Cientifica ?? row.Nota ?? 0);
+          const c4 = Number(row.Etica ?? row.Nota ?? 0);
+
+          let finalId = rawId;
+          if (!finalId) {
+            const existing = allStudents.find(s => s.course === selectedCourse && s.name === name);
+            finalId = existing ? existing.id : `CM-${courseObj.code}-${String(allStudents.length + idx + 1).padStart(3, "0")}`;
+          }
+
+          return { id: finalId, name, course: selectedCourse, subject, c1, c2, c3, c4 };
+        }).filter(r => r.name);
+
+        if (parsedExcelRows.length === 0) {
+          notifyStaff("No se encontraron filas válidas con columna 'Estudiante' en el archivo Excel.", true);
+          return;
+        }
+
+        const previewTable = document.getElementById("excelPreviewTable");
+        let html = `
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Estudiante</th>
+              <th>Asignatura</th>
+              <th>Com.</th>
+              <th>Pens. Lóg.</th>
+              <th>Cient.</th>
+              <th>Ética</th>
+              <th>Prom.</th>
+            </tr>
+          </thead>
+          <tbody>
+        `;
+        parsedExcelRows.forEach(r => {
+          const avg = Math.round((r.c1 + r.c2 + r.c3 + r.c4) / 4);
+          html += `
+            <tr>
+              <td><span class="id-badge">${r.id}</span></td>
+              <td>${r.name}</td>
+              <td>${r.subject}</td>
+              <td>${r.c1}</td>
+              <td>${r.c2}</td>
+              <td>${r.c3}</td>
+              <td>${r.c4}</td>
+              <td><strong>${avg}</strong></td>
+            </tr>
+          `;
+        });
+        html += "</tbody>";
+        previewTable.innerHTML = html;
+        document.getElementById("excelPreviewContainer").style.display = "block";
+      };
+      reader.readAsArrayBuffer(file);
+    };
+
+    window.publishExcelGrades = async function() {
+      const period = document.getElementById("excelPeriodSelect").value;
+      if (parsedExcelRows.length === 0) return;
+
+      try {
+        for (const r of parsedExcelRows) {
+          const ref = doc(db, "estudiantes", r.id);
+          const snap = await getDoc(ref);
+          const currentPeriods = snap.exists() ? (snap.data().periods || {}) : {};
+          const periodSubjects = currentPeriods[period] || {};
+
+          periodSubjects[r.subject] = {
+            Comunicativa: r.c1,
+            "Pensamiento Lógico": r.c2,
+            "Científica y Tecnológica": r.c3,
+            "Ética y Ciudadana": r.c4,
+            updatedBy: auth.currentUser.email
+          };
+
+          currentPeriods[period] = periodSubjects;
+
+          await setDoc(ref, {
+            name: r.name,
+            course: r.course,
+            periods: currentPeriods,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+        }
+
+        notifyStaff(`¡Listo! Se publicaron ${parsedExcelRows.length} registros en ${period}.`);
+        parsedExcelRows = [];
+        document.getElementById("excelPreviewContainer").style.display = "none";
+        document.getElementById("excelFileInput").value = "";
+        await loadAllStudents();
+      } catch (e) {
+        notifyStaff("Error al publicar calificaciones desde Excel: " + e.message, true);
+      }
+    };
+
+    // --- VISUALIZACIÓN DE NOTAS P1-P4 EN PANEL DOCENTE ---
+    window.setStaffPeriod = function(p, btn) {
+      staffViewPeriod = p;
+      document.querySelectorAll("#tab-view-grades .period-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderStaffGradesTable();
+    };
+
+    window.renderStaffGradesTable = function() {
+      const courseFilter = document.getElementById("viewCourseFilter").value;
+      const table = document.getElementById("staffGradesTable");
+      const list = courseFilter === "ALL" ? allStudents : allStudents.filter(s => s.course === courseFilter);
+
+      let html = `
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Curso</th>
+            <th>Estudiante</th>
+            <th>Asignaturas y Promedios (${staffViewPeriod})</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
+
+      let count = 0;
+      list.forEach(st => {
+        const pData = (st.periods && st.periods[staffViewPeriod]) || {};
+        const subjects = Object.keys(pData);
+        count++;
+        const badges = subjects.length > 0
+          ? subjects.map(sub => {
+              const c = pData[sub];
+              const avg = Math.round(((c.Comunicativa || 0) + (c["Pensamiento Lógico"] || 0) + (c["Científica y Tecnológica"] || 0) + (c["Ética y Ciudadana"] || 0)) / 4);
+              return `<span class="id-badge" style="margin:2px;">${sub}: ${avg}</span>`;
+            }).join(" ")
+          : `<span style="color:#64748b; font-size:12px;">Sin notas en ${staffViewPeriod}</span>`;
+
+        html += `
+          <tr>
+            <td><span class="id-badge">${st.id}</span></td>
+            <td>${st.course}</td>
+            <td><strong>${st.name}</strong></td>
+            <td>${badges}</td>
+          </tr>
+        `;
+      });
+
+      if (count === 0) {
+        html = "<tr><td style='padding:14px; color:#64748b;'>No hay estudiantes en este curso.</td></tr>";
+      } else {
+        html += "</tbody>";
+      }
+      table.innerHTML = html;
+    };
+
+    // --- PANEL ADMINISTRADORA GENERAL ---
+    window.authorizeTeacher = async function() {
+      const email = document.getElementById("newTeacherEmail").value.trim().toLowerCase();
+      if (!email.endsWith("@docente.edu.do")) {
+        notifyStaff("El correo debe terminar en @docente.edu.do", true);
+        return;
+      }
+      await setDoc(doc(db, "docentes_autorizados", email), {
+        email,
+        authorizedBy: auth.currentUser.email,
+        createdAt: serverTimestamp()
+      });
+      document.getElementById("newTeacherEmail").value = "";
+      notifyStaff(`Docente ${email} registrado correctamente.`);
+    };
+
+    async function loadDeliveriesAdmin() {
+      const table = document.getElementById("deliveriesTable");
+      const snap = await getDocs(collection(db, "entregas"));
+      if (snap.empty) {
+        table.innerHTML = "<tr><td style='padding:14px; color:#64748b;'>Aún no hay constancias de entrega registradas por padres.</td></tr>";
+        return;
+      }
+      let html = `
+        <thead>
+          <tr>
+            <th>ID Estudiante</th>
+            <th>Estudiante</th>
+            <th>Curso</th>
+            <th>Recibido por</th>
+            <th>Constancia</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
+      snap.forEach(d => {
+        const item = d.data();
+        html += `
+          <tr>
+            <td><span class="id-badge">${item.studentId}</span></td>
+            <td>${item.studentName || ""}</td>
+            <td>${item.course || ""}</td>
+            <td><strong>${item.guardianName}</strong> (${item.relation})</td>
+            <td>${item.photoThumbnail ? `<img src="${item.photoThumbnail}" style="width:48px; height:48px; border-radius:8px; object-fit:cover;" />` : "-"}</td>
+          </tr>
+        `;
+      });
+      html += "</tbody>";
+      table.innerHTML = html;
+    }
+
+    // --- FLUJO DE PADRES CON ID DEL ESTUDIANTE ---
+    window.parentLogin = async function() {
+      const rawId = document.getElementById("parentStudentId").value.trim().toUpperCase();
+      const err = document.getElementById("parentLoginError");
+      err.style.display = "none";
+
+      if (!rawId) {
+        err.textContent = "Por favor, ingrese el ID del estudiante.";
+        err.style.display = "block";
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, "estudiantes", rawId));
+        if (!snap.exists()) {
+          err.textContent = "No se encontró ningún estudiante con ese ID. Verifique con la administración del centro.";
+          err.style.display = "block";
+          return;
+        }
+        activeStudent = { id: rawId, ...snap.data() };
+        document.getElementById("confirmStudentLabel").textContent = `${activeStudent.name} (${activeStudent.course})`;
+        showScreen("screen-parent-confirm");
+      } catch (e) {
+        err.textContent = "Error al consultar el ID: " + e.message;
+        err.style.display = "block";
+      }
+    };
+
+    window.startCamera = async function() {
+      const video = document.getElementById("videoFeed");
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+        video.srcObject = mediaStream;
+        video.style.display = "block";
+        document.getElementById("capturedPhoto").style.display = "none";
+        document.getElementById("cameraPlaceholder").style.display = "none";
+        document.getElementById("btnCapture").style.display = "inline-block";
+      } catch {
+        alert("No se pudo abrir la cámara. Puede usar el botón 'Subir foto'.");
+      }
+    };
+
+    window.capturePhoto = function() {
+      const video = document.getElementById("videoFeed");
+      const canvas = document.getElementById("photoCanvas");
+      const img = document.getElementById("capturedPhoto");
+
+      canvas.width = 320;
+      canvas.height = 240;
+      canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+      photoDataUrl = canvas.toDataURL("image/jpeg", 0.6);
+
+      img.src = photoDataUrl;
+      img.style.display = "block";
+      video.style.display = "none";
+      document.getElementById("btnCapture").style.display = "none";
+      stopCamera();
+    };
+
+    window.handleFilePhoto = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const tempImg = new Image();
+        tempImg.onload = () => {
+          const canvas = document.getElementById("photoCanvas");
+          canvas.width = 320;
+          canvas.height = 240;
+          canvas.getContext("2d").drawImage(tempImg, 0, 0, 320, 240);
+          photoDataUrl = canvas.toDataURL("image/jpeg", 0.6);
+
+          const img = document.getElementById("capturedPhoto");
+          img.src = photoDataUrl;
+          img.style.display = "block";
+          document.getElementById("cameraPlaceholder").style.display = "none";
+          stopCamera();
+        };
+        tempImg.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    function stopCamera() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(t => t.stop());
+        mediaStream = null;
+      }
+    }
+
+    window.submitDeliveryAndShowGrades = async function() {
+      const guardianName = document.getElementById("guardianName").value.trim();
+      const relation = document.getElementById("guardianRelation").value;
+      const err = document.getElementById("confirmError");
+
+      if (!guardianName || !relation || !photoDataUrl) {
+        err.textContent = "Complete su nombre, parentesco y tome o suba una foto de constancia.";
+        err.style.display = "block";
+        return;
+      }
+      err.style.display = "none";
+
+      await addDoc(collection(db, "entregas"), {
+        studentId: activeStudent.id,
+        studentName: activeStudent.name,
+        course: activeStudent.course,
+        guardianName,
+        relation,
+        photoThumbnail: photoDataUrl,
+        timestamp: serverTimestamp()
+      });
+
+      document.getElementById("viewStudentName").textContent = activeStudent.name;
+      document.getElementById("viewStudentMeta").textContent =
+        `Curso: ${activeStudent.course} · ID: ${activeStudent.id} · Recibe: ${guardianName} (${relation})`;
+
+      activeParentPeriod = "P1";
+      renderParentGrades();
+      showScreen("screen-parent-grades");
+    };
+
+    window.selectParentPeriod = function(period, btn) {
+      activeParentPeriod = period;
+      document.querySelectorAll("#screen-parent-grades .period-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderParentGrades();
+    };
+
+    function renderParentGrades() {
+      const list = document.getElementById("parentSubjectsList");
+      const periodData = (activeStudent.periods && activeStudent.periods[activeParentPeriod]) || {};
+      const subjects = Object.keys(periodData);
+
+      if (subjects.length === 0) {
+        list.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:24px;">Aún no hay calificaciones publicadas para el periodo ${activeParentPeriod}.</p>`;
+        return;
+      }
+
+      list.innerHTML = "";
+      subjects.forEach(subj => {
+        const comp = periodData[subj];
+        const scores = ["Comunicativa", "Pensamiento Lógico", "Científica y Tecnológica", "Ética y Ciudadana"]
+          .map(k => Number(comp[k] || 0));
+        const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+
+        const card = document.createElement("div");
+        card.className = "subject-card";
+        card.innerHTML = `
+          <div class="subject-header">
+            <span>${subj}</span>
+            <span class="avg-pill">Promedio ${activeParentPeriod}: ${avg}</span>
+          </div>
+          <div class="comp-grid">
+            <div>Comunicativa: <strong>${comp["Comunicativa"] ?? "-"}</strong></div>
+            <div>Pens. Lógico: <strong>${comp["Pensamiento Lógico"] ?? "-"}</strong></div>
+            <div>Científica: <strong>${comp["Científica y Tecnológica"] ?? "-"}</strong></div>
+            <div>Ética y Ciud.: <strong>${comp["Ética y Ciudadana"] ?? "-"}</strong></div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    window.goHome = function() {
+      stopCamera();
+      photoDataUrl = null;
+      showScreen("screen-home");
+    };
+  </script>
+</body>
+</html>
